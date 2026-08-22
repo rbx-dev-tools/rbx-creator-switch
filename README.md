@@ -11,15 +11,30 @@ the top right for the account, the menu on the left for the creator, and the
 grid for the experience. Each row here carries its picture, because a list of
 thirty names makes you read where a list of icons lets you recognise.
 
-Not affiliated with Roblox. It drives endpoints Roblox does not document and
-may change without notice. What they are, how they were measured, and what
-breakage will look like is in [docs/creator-hub-api.md](docs/creator-hub-api.md).
+> **Not affiliated with Roblox, and built on endpoints Roblox does not
+> document.** They can change without notice, and when they do this extension
+> stops working until it is updated. What they are, how they were measured, and
+> what breakage will look like is in
+> [docs/creator-hub-api.md](docs/creator-hub-api.md). If something stopped
+> working, [open an issue](https://github.com/rbx-dev-tools/rbx-creator-switch/issues/new/choose)
+> with the text of the status line.
 
 ## Install
 
-Not on the Chrome Web Store. Open `chrome://extensions`, turn on Developer
-mode, choose "Load unpacked" and pick this folder. To work on the code, use
-`npm run dev` below instead.
+Not on the Chrome Web Store yet. Download the zip from the
+[latest release](https://github.com/rbx-dev-tools/rbx-creator-switch/releases/latest)
+and unpack it, or clone this repository. Then open `chrome://extensions`, turn
+on Developer mode, choose "Load unpacked" and pick the folder. Chrome 95 or
+later; the manifest refuses older ones.
+
+An unpacked extension does not update itself: when a release fixes an endpoint
+Roblox changed, download it again and press the reload arrow on
+`chrome://extensions`. To work on the code, use `npm run dev` below instead.
+
+Firefox is untested. The code uses only the promise-based `chrome.*` APIs
+that Firefox's MV3 supports, and it already handles host permission being
+withheld, which is Firefox's default, so it may work with a
+`browser_specific_settings` entry in the manifest. Reports welcome.
 
 ## Keyboard
 
@@ -47,11 +62,12 @@ Worth reading before installing it, and before handing it to someone else.
 `credentials: "include"`, which asks the browser to attach the session cookie
 itself; the value never passes through any code in this repository.
 
-**It never leaves roblox.com.** It sends requests to three hosts,
-`apis.roblox.com`, `thumbnails.roblox.com` and `users.roblox.com`, and opens
-tabs on two more, `www.roblox.com` and `create.roblox.com`. That is the
-complete list, and `grep -rn "https://" src/` prints it on one screen. No
-telemetry, no analytics, no remote configuration, no remote code.
+**It never leaves roblox.com.** It sends requests to two hosts,
+`apis.roblox.com` and `thumbnails.roblox.com`, and opens tabs on two more,
+`www.roblox.com` and `create.roblox.com`. That is the complete list:
+`grep -rn "https://" src/` prints it on one screen, and `npm run check` fails
+when the code names a host this paragraph does not. No telemetry, no
+analytics, no remote configuration, no remote code.
 
 **It declares two permissions**, `scripting` and `storage`, plus host access to
 `https://*.roblox.com/*`. Nothing prompts you: a manifest permission is granted
@@ -71,6 +87,12 @@ extension never competes with the page over which version of that record wins.
 
 **What it stores** is a per-account cache of your creator and experience lists,
 plus your theme choice, in `chrome.storage.local`, on your machine.
+
+**It needs a roblox.com tab**, because the session cookies and the account
+switcher state only exist there. It uses one you already have open. If there
+is none, it opens `www.roblox.com/home` in the background and closes it again
+when the popup closes, unless you brought that tab to the front in between, in
+which case it is yours and stays.
 
 **Names coming from Roblox are written as text, never as markup**, so a group
 or experience named after a `<script>` tag is displayed, not executed.

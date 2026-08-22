@@ -24,14 +24,19 @@ the same way the Creator Hub does. What it does hold is access to that session,
 which makes the interesting reports these:
 
 - **Anything that sends session material off roblox.com.** The extension talks
-  to `apis.roblox.com`, `thumbnails.roblox.com` and `users.roblox.com`, from a
-  page on `roblox.com`, and nowhere else. There is no telemetry, no analytics
-  and no remote configuration. A code path that reaches another host is a bug
-  worth reporting even if it looks harmless.
+  to `apis.roblox.com` and `thumbnails.roblox.com`, from a page on
+  `www.roblox.com`, and opens tabs on `create.roblox.com`. Nowhere else. There
+  is no telemetry, no analytics and no remote configuration. A code path that
+  reaches another host is a bug worth reporting even if it looks harmless, and
+  `npm run check` fails when the code names a host this list does not.
 - **Anything that widens the permissions.** The manifest asks for `scripting`,
-  `tabs`, `storage` and host access to `https://*.roblox.com/*`. `npm run
-check` fails the build on a declared permission nothing calls, precisely so
-  the list cannot quietly grow.
+  `storage` and host access to `https://*.roblox.com/*`, and deliberately not
+  `tabs`. `npm run check` fails the build on a declared permission nothing
+  calls, precisely so the list cannot quietly grow.
+- **Anything that lets the page reach the agent.** `src/agent.js` is injected
+  into Chrome's isolated world, so Roblox's own scripts cannot see, call or
+  redefine anything it uses. A change that moves it to the main world, or that
+  exposes the agent through the DOM or `postMessage`, is a finding.
 - **Mishandling of the account switcher blob.** `localStorage.RBXASBlob` on
   `www.roblox.com` records which accounts are signed in. Writing a wrong value
   there can drop accounts from the switcher, which is data loss rather than

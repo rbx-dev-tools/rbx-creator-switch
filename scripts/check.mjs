@@ -125,6 +125,52 @@ for (const source of [...walk('src'), ...walk('scripts')]) {
   }
 }
 
+// --- hosts ----------------------------------------------------------------
+
+// Every host the shipped code names must be one the manifest allows, or the
+// request fails in the browser with a CORS error nothing here would predict.
+// And the README and SECURITY.md each promise a complete list of those hosts,
+// so they are held to it: a host added to the code without a line in the docs,
+// or a host in the docs the code stopped calling, fails here. Those two lists
+// drifted once already.
+if (manifest) {
+  const hostPatterns = (manifest.host_permissions ?? []).map(
+    (pattern) =>
+      new RegExp(
+        '^' +
+          pattern
+            .replaceAll('.', String.raw`\.`)
+            .replace(/\*/g, '.*')
+            .replace(/\/$/, '')
+      )
+  );
+  const hosts = new Set();
+  for (const source of walk('src')) {
+    for (const [, host] of read(source).matchAll(/https:\/\/([a-z0-9.-]+\.[a-z]+)/gi)) {
+      hosts.add(host.toLowerCase());
+    }
+  }
+  for (const host of hosts) {
+    if (!hostPatterns.some((pattern) => pattern.test(`https://${host}/`))) {
+      fail(`src names https://${host} but no host_permissions entry allows it`);
+    }
+  }
+  for (const doc of ['README.md', 'SECURITY.md']) {
+    const text = read(doc);
+    for (const host of hosts) {
+      if (!text.includes(`\`${host}\``)) fail(`${doc} does not list \`${host}\``);
+    }
+    for (const [, host] of text.matchAll(/`([a-z0-9-]+\.roblox\.com)`/g)) {
+      if (!hosts.has(host)) fail(`${doc} lists \`${host}\`, which nothing in src calls`);
+    }
+  }
+
+  // The manifest's floor has to cover the newest API the code relies on.
+  // executeScript's `world` option is the current high-water mark (Chrome 95).
+  const floor = Number(manifest.minimum_chrome_version ?? 0);
+  if (!(floor >= 95)) fail(`minimum_chrome_version ${manifest.minimum_chrome_version} is below 95`);
+}
+
 // --- files nobody asks for ------------------------------------------------
 
 for (const file of [...walk('src'), ...walk('icons')]) {
