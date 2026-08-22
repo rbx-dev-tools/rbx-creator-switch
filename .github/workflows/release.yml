@@ -84,6 +84,10 @@ jobs:
           REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
         run: |
           set -euo pipefail
+          if [ -z "$REFRESH_TOKEN" ]; then
+            echo 'CWS secrets are not set: the GitHub release is out, the store upload is left to the console.'
+            exit 0
+          fi
           token=$(curl -sS -X POST https://oauth2.googleapis.com/token \
             -d client_id="$CLIENT_ID" -d client_secret="$CLIENT_SECRET" \
             -d refresh_token="$REFRESH_TOKEN" -d grant_type=refresh_token \

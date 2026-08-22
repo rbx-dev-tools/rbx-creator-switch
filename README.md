@@ -26,15 +26,19 @@ thirty names makes you read where a list of icons lets you recognise.
 
 ## Install
 
-Not on the Chrome Web Store yet. Download the zip from the
-[latest release](https://github.com/rbx-dev-tools/rbx-creator-switch/releases/latest)
-and unpack it, or clone this repository. Then open `chrome://extensions`, turn
-on Developer mode, choose "Load unpacked" and pick the folder. Chrome 95 or
-later; the manifest refuses older ones.
+**From the Chrome Web Store**, which keeps it updated:
+<https://chromewebstore.google.com/detail/bepiniefoledgbkjhfiahjmaiceafmak>.
+The listing is unlisted: the link installs, the store's search does not find
+it. Works in Chrome, Edge, Brave and the other Chromium browsers that accept
+the Chrome store. Chrome 95 or later; the manifest refuses older ones.
 
-An unpacked extension does not update itself: when a release fixes an endpoint
-Roblox changed, download it again and press the reload arrow on
-`chrome://extensions`. To work on the code, use `npm run dev` below instead.
+**Unpacked**, if you would rather read what you run: download the zip from
+the [latest release](https://github.com/rbx-dev-tools/rbx-creator-switch/releases/latest)
+and unpack it, or clone this repository. Then open `chrome://extensions`, turn
+on Developer mode, choose "Load unpacked" and pick the folder. An unpacked
+extension does not update itself: when a release fixes an endpoint Roblox
+changed, download it again and press the reload arrow. To work on the code,
+use `npm run dev` below instead.
 
 Firefox is untested. The code uses only the promise-based `chrome.*` APIs
 that Firefox's MV3 supports, and it already handles host permission being
