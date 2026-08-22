@@ -20,11 +20,16 @@
 
   <rect width="128" height="128" rx="30" fill="url(#badge)" />
 
-  <!-- Two arrows swapping places: the one gesture this extension is for. -->
+  <!-- Two arrows swapping places: the one gesture this extension is for.
+       Sized for 16px: each arrow is a fifth of the badge tall, the two are
+       a clear gap apart, and the heads are wide enough to stay triangles
+       when the whole icon is four pixels high. -->
   <g fill="#ffffff">
-    <path d="M34 48h44v14H34z" />
-    <path d="M70 32l30 23-30 23z" />
-    <path d="M94 66H50v14h44z" />
-    <path d="M58 96L28 73l30-23z" />
+    <!-- top arrow, pointing right -->
+    <path d="M22 34h50v20H22z" />
+    <path d="M66 20l40 24-40 24z" />
+    <!-- bottom arrow, pointing left -->
+    <path d="M106 74H56v20h50z" />
+    <path d="M62 108L22 84l40-24z" />
   </g>
 </svg>
