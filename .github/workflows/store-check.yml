@@ -1,0 +1,35 @@
+name: Store check
+
+# Run by hand. Proves the Chrome Web Store credentials work without
+# uploading or publishing anything: it asks for a token, then reads the
+# item's state. Useful right after setting the secrets, and whenever a
+# release's publish step fails, to tell a dead token from a bad package.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Read the store item
+    runs-on: ubuntu-latest
+    env:
+      EXTENSION_ID: ${{ vars.CWS_EXTENSION_ID }}
+      CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+      REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+    steps:
+      - run: |
+          set -euo pipefail
+          test -n "$EXTENSION_ID" || { echo 'CWS_EXTENSION_ID is not set'; exit 1; }
+          test -n "$REFRESH_TOKEN" || { echo 'CWS secrets are not set'; exit 1; }
+          token=$(curl -sS -X POST https://oauth2.googleapis.com/token \
+            -d client_id="$CLIENT_ID" -d client_secret="$CLIENT_SECRET" \
+            -d refresh_token="$REFRESH_TOKEN" -d grant_type=refresh_token \
+            | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).access_token || ''")
+          test -n "$token" || { echo 'token exchange failed: check the three secrets'; exit 1; }
+          echo 'token: ok'
+          curl -sS -H "Authorization: Bearer $token" -H "x-goog-api-version: 2" \
+            "https://www.googleapis.com/chromewebstore/v1.1/items/$EXTENSION_ID?projection=DRAFT"
+          echo
