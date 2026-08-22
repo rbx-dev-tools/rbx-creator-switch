@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The search field is focused again when the popup opens. The no-flash
+  change kept the page hidden for a frame, and a focus given to a hidden
+  element is dropped.
+
 ## [0.1.0] - 2026-08-22
 
 ### Added
