@@ -64,22 +64,26 @@ async function loadAccounts() {
   status.clear();
 
   // Not awaited: the creator list is what the user is waiting for, and a face
-  // arriving a moment later costs nothing.
+  // arriving a moment later costs nothing. The creator picker gets the same
+  // faces: its "My creations" row is keyed by the user id, and on a cold
+  // cache it is drawn before this answer lands.
   paintImages(
     'accounts',
     accounts.map((a) => a.userId),
-    account
+    [account, creator]
   );
   await loadCreators();
 }
 
 // Fills in the pictures of a list already on screen, and remembers the
 // enriched list so the next open paints them at once.
-async function paintImages(kind, ids, picker, cacheKey) {
+async function paintImages(kind, ids, pickers, cacheKey) {
   if (ids.length === 0) return;
   try {
     const urls = await call('images', { kind, ids });
-    if (!picker.updateImages(urls) || !cacheKey) return;
+    let changed = false;
+    for (const picker of [pickers].flat()) changed = picker.updateImages(urls) || changed;
+    if (!changed || !cacheKey) return;
     await remember(cacheKey.kind, cacheKey.scope, cacheKey.value(urls));
   } catch {
     // A picture is a nicety. Losing one must not disturb the list it decorates.
@@ -161,8 +165,15 @@ async function loadCreators() {
   });
 
   status.clear();
-  await loadGames();
+  // Experiences follow the creator on screen. With a cached list that is now;
+  // without one there is no creator yet, so it has to wait for the answer.
+  // And a fresh answer can move the selection (a group left, a first open),
+  // in which case the experiences have to follow again. Measured on a cold
+  // cache: skipping the second call left "pick a creator" on screen forever.
+  const before = creator.value;
+  if (before) await loadGames();
   await pending;
+  if (activeUserId === forAccount && creator.value !== before) await loadGames();
   await loadCatalogues();
   await buildCatalog();
 }
