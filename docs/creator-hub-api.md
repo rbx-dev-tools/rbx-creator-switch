@@ -168,8 +168,13 @@ GET https://apis.roblox.com/universes/v1/search
 ```
 
 `PageIndex` is omitted on the first call by the dashboard and then incremented
-for each further page. `SortParam` was only observed as `LastUpdated`; other
-values are likely but untested.
+for each further page. The extension walks pages from `0` and stops at the
+first page shorter than `PageSize`, with a ceiling of 40 pages (2000
+experiences) in case the endpoint ever keeps answering full pages. The
+response also carries `totalResults` and `nextResultIndex`, which would be the
+cleaner stop condition; they were seen but their semantics were not measured,
+so the short-page rule is what is relied on. `SortParam` was only observed as
+`LastUpdated`; other values are likely but untested.
 
 ## Images
 

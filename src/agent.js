@@ -25,7 +25,7 @@
       csrfToken = res.headers.get('x-csrf-token');
       res = await send();
     }
-    if (!res.ok) throw new Error('POST ' + path + ' -> ' + res.status);
+    if (!res.ok) throw failure('POST', path, res.status);
     return res.json();
   }
 
@@ -33,8 +33,17 @@
     const url = new URL(API + path);
     for (const [k, v] of Object.entries(params || {})) url.searchParams.set(k, v);
     const res = await fetch(url, { credentials: 'include' });
-    if (!res.ok) throw new Error('GET ' + path + ' -> ' + res.status);
+    if (!res.ok) throw failure('GET', path, res.status);
     return res.json();
+  }
+
+  // The status line is the only place a popup user reads. A bare "401" there
+  // says nothing; what it means is that the session is gone.
+  function failure(method, path, status) {
+    if (status === 401 || status === 403) {
+      return new Error(`not signed in on roblox.com (${method} ${path} -> ${status})`);
+    }
+    return new Error(`${method} ${path} -> ${status}`);
   }
 
   // The switcher blob lives on www.roblox.com only. A content script shares the
@@ -75,7 +84,11 @@
         const res = await fetch(url, { credentials: 'include' });
         if (!res.ok) continue;
         for (const t of (await res.json()).data || []) {
-          if (t.state === 'Completed' && t.imageUrl) found.set(String(t.targetId), t.imageUrl);
+          // The URL ends up inside a CSS url(). Only an https one is worth
+          // having; anything else is a surprise from the API, not an image.
+          if (t.state === 'Completed' && /^https:\/\//.test(t.imageUrl || '')) {
+            found.set(String(t.targetId), t.imageUrl);
+          }
         }
       } catch {
         // An image is a nicety. Losing one must not lose the list it decorates.
@@ -142,22 +155,35 @@
 
     // creatorType is 'User' or 'Group'; creatorTargetId the user id or group id.
     // -> [{ id, name, rootPlaceId, privacyType, imageUrl }]
-    async listGames({ creatorType, creatorTargetId, pageIndex = 0, isArchived = false }) {
-      const { data = [] } = await get('/universes/v1/search', {
-        CreatorType: creatorType,
-        CreatorTargetId: String(creatorTargetId),
-        Surface: 'CreatorHubCreations',
-        PageSize: 50,
-        PageIndex: pageIndex,
-        IsArchived: isArchived,
-        SortParam: 'LastUpdated',
-        SortOrder: 'Desc',
-        NeedsAssetOptions: true,
-      });
+    //
+    // The endpoint pages, and the dashboard walks the pages by incrementing
+    // PageIndex. A creator with more than one page of experiences would
+    // otherwise lose the rest silently, from the picker and from the search
+    // catalogue alike. The walk stops on a short page, and on a hard ceiling
+    // in case the endpoint ever answers full pages forever.
+    async listGames({ creatorType, creatorTargetId, isArchived = false }) {
+      const PAGE = 50;
+      const MAX_PAGES = 40;
+      const all = [];
+      for (let pageIndex = 0; pageIndex < MAX_PAGES; pageIndex += 1) {
+        const { data = [] } = await get('/universes/v1/search', {
+          CreatorType: creatorType,
+          CreatorTargetId: String(creatorTargetId),
+          Surface: 'CreatorHubCreations',
+          PageSize: PAGE,
+          PageIndex: pageIndex,
+          IsArchived: isArchived,
+          SortParam: 'LastUpdated',
+          SortOrder: 'Desc',
+          NeedsAssetOptions: true,
+        });
+        all.push(...data);
+        if (data.length < PAGE) break;
+      }
       // SortParam above asks for most recently updated first, which is the
       // useful order for a list of things you are working on, and unlike the
       // groups it is the server that applies it.
-      return data.map((u) => ({
+      return all.map((u) => ({
         id: String(u.id),
         name: u.name,
         rootPlaceId: u.rootPlaceId,
