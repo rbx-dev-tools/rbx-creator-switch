@@ -1,0 +1,26 @@
+# Git hooks managed by lefthook. Install once with `lefthook install`.
+# https://lefthook.dev/
+
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: '*.{js,mjs,json,css,html,md,yml}'
+      run: npx prettier --check {staged_files}
+      fail_text: 'Unformatted files. Run `npm run format` then re-stage.'
+    lint:
+      glob: '*.{js,mjs}'
+      run: npx eslint {staged_files}
+      fail_text: 'ESLint found problems. Fix them, or run `npx eslint --fix`.'
+    check:
+      # Not scoped to the staged files: moving one file breaks a path in
+      # another, which is exactly the failure this catches.
+      glob: '*.{js,mjs,json,html}'
+      run: node scripts/check.mjs
+      fail_text: 'The extension no longer holds together. See the paths above.'
+
+pre-push:
+  commands:
+    test:
+      run: npm test
+      fail_text: 'Tests fail. Push blocked.'

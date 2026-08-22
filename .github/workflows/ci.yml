@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-flight runs for the same ref when a new push arrives. Avoids
+# burning CI minutes on commits already superseded.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# One job. The four checks together take seconds, and splitting them would pay
+# four runner startups and four npm installs to parallelise work that is
+# already faster than the setup it needs.
+jobs:
+  check:
+    name: Lint, test and verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm test
+      # Last on purpose: it is the check that answers "would a browser load
+      # this", and it reads better as the closing verdict.
+      - run: npm run check

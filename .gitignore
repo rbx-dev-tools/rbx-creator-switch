@@ -1,0 +1,13 @@
+node_modules/
+dist/
+
+# Editor/tool configs
+.idea/
+.vscode/
+.zed/
+.claude/
+
+# Packed extension
+*.zip
+*.crx
+*.pem

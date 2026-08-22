@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>rbx-creator-switch</title>
+
+  <!--
+    The source of truth for every icon in this extension. scripts/icons.mjs
+    renders it to the PNG sizes Chrome asks for.
+
+    Drawn for 16px first, where it spends most of its life in a toolbar: two
+    thick arrows, no thin strokes, no text, and shapes that stay separate when
+    the whole thing is the size of a word. Deliberately nothing borrowed from
+    Roblox's own marks, since this is not their extension.
+  -->
+
+  <defs>
+    <linearGradient id="badge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4f8bff" />
+      <stop offset="1" stop-color="#2b5fd9" />
+    </linearGradient>
+  </defs>
+
+  <rect width="128" height="128" rx="30" fill="url(#badge)" />
+
+  <!-- Two arrows swapping places: the one gesture this extension is for. -->
+  <g fill="#ffffff">
+    <path d="M34 48h44v14H34z" />
+    <path d="M70 32l30 23-30 23z" />
+    <path d="M94 66H50v14h44z" />
+    <path d="M58 96L28 73l30-23z" />
+  </g>
+</svg>

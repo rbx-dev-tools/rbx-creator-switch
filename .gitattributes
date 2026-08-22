@@ -1,0 +1,8 @@
+# The repository is developed on Windows and built on Linux runners. Normalising
+# on commit keeps a checkout on either from showing every file as modified, and
+# keeps the release zip byte-identical whoever builds it.
+* text=auto eol=lf
+
+# Marked binary so a merge never tries to reconcile them line by line.
+*.png binary
+*.zip binary

@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Actions are pinned by commit SHA, which is the safe way to depend on them
+  # and the unmaintainable way to keep them current. This is what makes the
+  # pinning sustainable.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    # Dev tooling only, nothing here ships to a browser, so one grouped PR a
+    # month is the right amount of noise.
+    groups:
+      dev-tooling:
+        patterns: ['*']

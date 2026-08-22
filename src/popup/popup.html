@@ -1,0 +1,58 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>rbx-creator-switch</title>
+<link rel="stylesheet" href="popup.css" />
+
+<div class="search" id="search">
+  <div class="field">
+    <input
+      type="search"
+      placeholder="Search an experience"
+      autocomplete="off"
+      spellcheck="false"
+      aria-label="Search an experience"
+    />
+    <button
+      class="refresh"
+      type="button"
+      title="Rebuild the search index"
+      aria-label="Rebuild the search index"
+    ></button>
+  </div>
+  <ul class="list" role="listbox"></ul>
+</div>
+
+<div class="picker" id="account">
+  <div class="label">Account</div>
+  <button class="current" type="button" aria-expanded="false" disabled>
+    <span class="avatar"></span><span class="text">loading</span><span class="chevron"></span>
+  </button>
+  <ul class="list"></ul>
+</div>
+
+<div class="picker" id="creator">
+  <div class="label">Creator</div>
+  <button class="current" type="button" aria-expanded="false" disabled>
+    <span class="avatar"></span><span class="text">pick an account</span
+    ><span class="chevron"></span>
+  </button>
+  <ul class="list"></ul>
+</div>
+
+<div class="picker" id="game">
+  <div class="label">Experience</div>
+  <button class="current" type="button" aria-expanded="false" disabled>
+    <span class="avatar"></span><span class="text">pick a creator</span
+    ><span class="chevron"></span>
+  </button>
+  <ul class="list"></ul>
+</div>
+
+<button id="open" type="button" disabled>Open in the Creator Hub</button>
+
+<div class="footer">
+  <div id="status"></div>
+  <div class="theme" id="theme" role="group" aria-label="Theme"></div>
+</div>
+
+<script type="module" src="main.js"></script>

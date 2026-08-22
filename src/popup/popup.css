@@ -1,0 +1,421 @@
+/* Auto light and dark is native: color-scheme makes the browser pick the form
+   controls, the scrollbars and the default canvas. The theme module only ever
+   overrides it when someone asks for a fixed one.
+
+   Every colour below is a token, and every token is defined once per scheme
+   through light-dark(). A colour written inline is a colour that will be wrong
+   in the other theme the day someone forgets. */
+:root {
+  color-scheme: light dark;
+
+  /* Surfaces, from the page up to the floating list. */
+  --bg: light-dark(#fbfbfc, #17181c);
+  --raised: light-dark(#ffffff, #23252b);
+  --line: light-dark(#e2e4e9, #33363e);
+  --hover: light-dark(#f1f2f5, #2b2e35);
+
+  /* Text. The muted tone is held above 4.5:1 on its own background in both
+     schemes, because a username is information, not decoration. */
+  --fg: light-dark(#16181d, #eceef2);
+  --fg-muted: light-dark(#5f6672, #a2a8b4);
+  /* Between the two. A field label is not body text and not a whisper: it has
+     to be findable at a glance without competing with the row it names. */
+  --fg-label: light-dark(#3c424e, #c5cad4);
+
+  /* One accent, used for the selected row, the focus ring and the one button
+     that commits. Anything else competing for attention would flatten it. */
+  --accent: light-dark(#2f66e0, #6f9dff);
+  --accent-fg: light-dark(#ffffff, #12141a);
+  --accent-soft: light-dark(#eaf0fe, #22304d);
+
+  --danger: light-dark(#c0362c, #ff8f85);
+
+  --radius: 8px;
+  --shadow: light-dark(0 10px 28px rgb(16 20 32 / 0.14), 0 12px 32px rgb(0 0 0 / 0.55));
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+body {
+  width: 320px;
+  margin: 0;
+  padding: 14px;
+  background: var(--bg);
+  color: var(--fg);
+  /* system-ui resolves to the interface face the OS actually uses, which is
+     what makes a popup look like part of the browser rather than a web page
+     inside it. The rest is fallback for the platforms where it does not. */
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    sans-serif;
+  font-size: 13px;
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+}
+
+.picker {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+/* This was 10px, uppercase, letter-spaced, in the same grey as a username. It
+   looked tidy and it was hard to read: small type loses its word shapes in
+   uppercase, and the muted tone put a label meant to guide the eye at the same
+   level as the detail under it. Now sentence case, 12px, semibold, and a tone
+   of its own. */
+.label {
+  margin-bottom: 6px;
+  color: var(--fg-label);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.current,
+.list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 9px;
+  box-sizing: border-box;
+  border-radius: var(--radius);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.current {
+  border: 1px solid var(--line);
+  background: var(--raised);
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease;
+}
+.current:disabled {
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: default;
+}
+.current:not(:disabled):hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+
+/* Keyboard users get the same affordance mouse users get from hover, and the
+   ring is drawn outside the border so it never shifts the layout. */
+:is(.current, .list li, #open, .theme button):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* The image is a nicety, so the frame keeps its box whether or not one loads.
+   A row that reflows when its picture lands is worse than one without. */
+.avatar {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: var(--hover) center / cover no-repeat;
+  box-shadow: inset 0 0 0 1px light-dark(rgb(0 0 0 / 0.07), rgb(255 255 255 / 0.08));
+}
+#account .avatar {
+  border-radius: 50%;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.sub {
+  margin-top: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--fg-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.chevron {
+  flex: none;
+  color: var(--fg-muted);
+  font-size: 10px;
+  transition: transform 140ms ease;
+}
+.chevron::after {
+  content: '\25BE';
+}
+.picker.open .chevron {
+  transform: rotate(180deg);
+}
+
+/* Floating rather than in flow: an open list must not move what is under it.
+   A popup window is sized to its document, and an absolutely positioned list
+   still counts towards that, so opening one grows the window instead of being
+   clipped by it. The cap keeps the worst case, the last picker opened on a
+   long list, under the 600px a popup is allowed to reach, which is what keeps
+   a scrollbar off the popup itself. The list scrolls, the popup does not. */
+.list {
+  position: absolute;
+  z-index: 2;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  margin: 5px 0 0;
+  padding: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+  box-shadow: var(--shadow);
+  scrollbar-width: thin;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px) scale(0.99);
+  transform-origin: top center;
+  transition:
+    opacity 130ms ease,
+    transform 130ms ease,
+    visibility 130ms;
+}
+.picker.open .list {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.list li {
+  position: relative;
+  cursor: pointer;
+}
+.list li:hover,
+.list li.highlighted {
+  background: var(--hover);
+}
+
+/* Selection is carried by colour and by a bar, not by weight alone: bolding a
+   row changes its width and makes the list twitch as the choice moves. */
+.list li[aria-selected='true'] {
+  background: var(--accent-soft);
+}
+.list li[aria-selected='true']::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+
+#open {
+  width: 100%;
+  margin-top: 2px;
+  padding: 9px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--accent-fg);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 120ms ease;
+}
+#open:disabled {
+  border-color: var(--line);
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: default;
+}
+#open:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  min-height: 22px;
+}
+
+#status {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--fg-muted);
+  font-size: 11.5px;
+}
+#status.error {
+  color: var(--danger);
+  white-space: normal;
+}
+
+/* Three states in the width of a word, because the theme is a preference, not
+   a feature worth a row of its own. */
+.theme {
+  display: flex;
+  flex: none;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--hover);
+}
+.theme button {
+  padding: 3px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg-muted);
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+.theme button:hover {
+  color: var(--fg);
+}
+.theme button[aria-pressed='true'] {
+  background: var(--raised);
+  color: var(--fg);
+  box-shadow: 0 1px 2px light-dark(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.35));
+}
+
+/* Someone who asked their system for less motion means it here too. */
+@media (prefers-reduced-motion: reduce) {
+  .chevron,
+  .list,
+  .current,
+  #open,
+  .theme button {
+    transition-duration: 1ms;
+  }
+}
+
+/* --- search ------------------------------------------------------------ */
+
+.search {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 6px 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--raised);
+}
+.field:focus-within {
+  border-color: var(--accent);
+}
+
+.field input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  outline: none;
+}
+.field input::placeholder {
+  color: var(--fg-muted);
+}
+/* The browser's own clear cross sits badly in a field this size, and Escape
+   already empties it. */
+.field input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.refresh {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--fg-muted);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.refresh::after {
+  /* The glyph itself, not a CSS escape: an escape has to survive every tool
+     that rewrites this file, and one of them did not. */
+  content: '↻';
+}
+.refresh:hover:not(:disabled) {
+  background: var(--hover);
+  color: var(--fg);
+}
+.refresh:disabled {
+  cursor: default;
+}
+.refresh.spinning::after {
+  display: inline-block;
+  animation: spin 900ms linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.search .list {
+  max-height: 280px;
+}
+.search.open .list {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+.search .list li {
+  cursor: pointer;
+}
+.search .list li.empty {
+  padding: 10px;
+  color: var(--fg-muted);
+  cursor: default;
+}
+
+/* A result from another account changes more than the experience, so it says
+   so before it is picked rather than after. */
+.switches {
+  flex: none;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .refresh.spinning::after {
+    animation-duration: 3s;
+  }
+}
