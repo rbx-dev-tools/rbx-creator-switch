@@ -373,7 +373,7 @@ const SHOTS = [
   { name: 'search-dark', query: 'theme=dark&open=search&q=to' },
   { name: 'search-light', query: 'theme=light&open=search&q=to' },
 ];
-const WIDTH = 348; // 320px of popup plus its 14px of padding either side
+const WIDTH = 368; // 340px of popup plus its 14px of padding either side
 
 async function capture() {
   const out = join(root, 'docs', 'screenshots');

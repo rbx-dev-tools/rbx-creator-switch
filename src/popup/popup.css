@@ -68,7 +68,7 @@
 }
 
 body {
-  width: 320px;
+  width: 340px;
   margin: 0;
   padding: 14px;
   background: var(--bg);
@@ -88,7 +88,11 @@ body {
     Roboto,
     'Helvetica Neue',
     sans-serif;
-  font-size: 13px;
+  /* The Hub's own scale: 14px body, bold names, 12px detail. The popup was
+     a point smaller across the board and read as faint next to the page it
+     sits over, the more so in Segoe UI, which is lighter than Builder Sans
+     at the same weight. */
+  font-size: 14px;
   line-height: 1.35;
   -webkit-font-smoothing: antialiased;
 }
@@ -106,8 +110,8 @@ body {
 .label {
   margin-bottom: 6px;
   color: var(--fg-label);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .current,
@@ -116,7 +120,7 @@ body {
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 7px 9px;
+  padding: 8px 10px;
   box-sizing: border-box;
   border-radius: var(--radius);
   font: inherit;
@@ -125,6 +129,10 @@ body {
 }
 
 .current {
+  /* The same height whether the row has a second line or not, so the three
+     pickers line up: a one-line experience under a two-line creator looked
+     like a different kind of control. Sized to the two-line case. */
+  min-height: 54px;
   border: 1px solid var(--line);
   background: var(--raised);
   cursor: pointer;
@@ -153,9 +161,9 @@ body {
    A row that reflows when its picture lands is worse than one without. */
 .avatar {
   flex: none;
-  width: 30px;
-  height: 30px;
-  border-radius: 7px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   background: var(--hover) center / cover no-repeat;
   box-shadow: inset 0 0 0 1px light-dark(rgb(0 0 0 / 0.07), rgb(255 255 255 / 0.08));
 }
@@ -169,7 +177,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* The Hub's pill: a tinted capsule, 600 weight, a lock when it matters. */
@@ -178,12 +186,12 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 20px;
-  padding: 0 8px;
+  height: 22px;
+  padding: 0 9px;
   border-radius: 999px;
   background: var(--hover);
   color: var(--fg-label);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -201,8 +209,8 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--fg-muted);
-  font-size: 11px;
-  font-weight: 400;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 /* Drawn rather than typed: a glyph's size and weight depend on the font the
@@ -210,8 +218,8 @@ body {
    tree; open it turns to point down at the list it revealed. */
 .chevron {
   flex: none;
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   margin-right: 4px;
   border-right: 2px solid var(--fg-muted);
   border-bottom: 2px solid var(--fg-muted);
@@ -234,7 +242,7 @@ body {
   top: 100%;
   left: 0;
   right: 0;
-  max-height: 240px;
+  max-height: 270px;
   margin: 5px 0 0;
   padding: 4px;
   overflow-y: auto;
@@ -292,7 +300,7 @@ body {
 #open {
   width: 100%;
   margin-top: 2px;
-  padding: 9px;
+  padding: 12px;
   border: 1px solid transparent;
   border-radius: var(--radius);
   background: var(--accent);
@@ -330,7 +338,8 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--fg-muted);
-  font-size: 11.5px;
+  font-size: 12px;
+  font-weight: 500;
 }
 #status.error {
   color: var(--danger);
@@ -377,8 +386,8 @@ body {
   background: transparent;
   color: var(--fg-muted);
   font: inherit;
-  font-size: 10.5px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
   transition: color 160ms ease;
 }
@@ -424,7 +433,7 @@ body {
 .field input {
   flex: 1;
   min-width: 0;
-  padding: 9px 0;
+  padding: 11px 0;
   border: 0;
   background: none;
   color: inherit;
@@ -498,12 +507,12 @@ body {
   flex: none;
   display: inline-flex;
   align-items: center;
-  height: 20px;
-  padding: 0 8px;
+  height: 22px;
+  padding: 0 9px;
   border-radius: 999px;
   background: var(--accent-soft);
   color: light-dark(#1f47d6, #8fb4ff);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
 }
