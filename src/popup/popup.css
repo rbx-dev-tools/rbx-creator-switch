@@ -147,17 +147,21 @@ body {
   font-weight: 400;
 }
 
+/* Drawn rather than typed: a glyph's size and weight depend on the font the
+   OS picked, a border does not. Closed it points right, like a collapsed
+   tree; open it turns to point down at the list it revealed. */
 .chevron {
   flex: none;
-  color: var(--fg-muted);
-  font-size: 10px;
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-right: 2px solid var(--fg-muted);
+  border-bottom: 2px solid var(--fg-muted);
+  transform: rotate(-45deg);
   transition: transform 140ms ease;
 }
-.chevron::after {
-  content: '\25BE';
-}
 .picker.open .chevron {
-  transform: rotate(180deg);
+  transform: translateY(-2px) rotate(45deg);
 }
 
 /* Floating rather than in flow: an open list must not move what is under it.
