@@ -191,7 +191,7 @@ version}]}`, and all three were verified to return `state: "Completed"` with a
 usable URL for every id tested.
 
 Two traps, both inherited from
-[rbx-observe](https://github.com/rbx-dev-tools/rbx-observe), which documents
+[rbx-observe](https://github.com/rbx-forge/rbx-observe), which documents
 this service in depth:
 
 - An image that has not been rendered yet comes back as `state: "Pending"`,
