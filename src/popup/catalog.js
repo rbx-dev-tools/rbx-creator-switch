@@ -34,7 +34,15 @@ async function save(userId, catalogue) {
  * show something moving during a crawl that takes a few seconds.
  */
 export async function build({ userId, username, creators, call, onProgress }) {
-  const existing = (await read(userId)) ?? {};
+  // What the last crawl knew, by creator. A creator that refuses this time
+  // keeps the entries it had last time, so a blip in one request does not
+  // empty a creator out of the search until the next manual refresh.
+  const previous = new Map();
+  for (const entry of (await read(userId))?.entries ?? []) {
+    if (!previous.has(entry.creator)) previous.set(entry.creator, []);
+    previous.get(entry.creator).push(entry);
+  }
+
   const entries = [];
   const done = [];
 
@@ -59,8 +67,9 @@ export async function build({ userId, username, creators, call, onProgress }) {
           });
         }
       } catch {
-        // One creator that refuses is not a reason to lose the other thirty.
-        // It simply stays out of the catalogue until the next refresh.
+        // One creator that refuses is not a reason to lose the other thirty,
+        // nor to lose what was known about this one.
+        entries.push(...(previous.get(creator.value) ?? []));
       }
       done.push(creator.value);
       onProgress?.(done.length, creators.length);
@@ -78,7 +87,7 @@ export async function build({ userId, username, creators, call, onProgress }) {
 
   const catalogue = { at: Date.now(), username, entries, partial: false };
   await save(userId, catalogue);
-  return { ...existing, ...catalogue };
+  return catalogue;
 }
 
 /**

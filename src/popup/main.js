@@ -227,24 +227,37 @@ async function loadCatalogues() {
 // when the refresh button is pressed, or once when there is nothing to search
 // at all, since a search field that can only answer "nothing by that name" is
 // worse than one that says it is filling up.
-async function buildCatalog({ force = false } = {}) {
+//
+// One crawl at a time. The refresh button pressed twice, or pressed while the
+// first automatic crawl runs, would otherwise start two crawls writing the
+// same key in turns, each overwriting the other's progress.
+let crawling = null;
+
+function buildCatalog({ force = false } = {}) {
+  if (crawling) return crawling;
   const known = catalogues[activeUserId];
-  if (known && !known.partial && !force) return;
-  if (creator.rows.length === 0) return;
+  if (known && !known.partial && !force) return Promise.resolve();
+  if (creator.rows.length === 0) return Promise.resolve();
 
   const me = account.selected;
+  const userId = activeUserId;
   search.busy('indexing...');
-  try {
-    catalogues[activeUserId] = await catalog.build({
-      userId: activeUserId,
+  crawling = catalog
+    .build({
+      userId,
       username: me ? me.sub.replace('@', '') : '',
       creators: creator.rows,
       call,
       onProgress: (done, total) => search.busy(`indexing ${done}/${total}`),
+    })
+    .then((built) => {
+      catalogues[userId] = built;
+    })
+    .finally(() => {
+      crawling = null;
+      search.busy(null);
     });
-  } finally {
-    search.busy(null);
-  }
+  return crawling;
 }
 
 // A search result is a whole (account, creator, experience) triple, so acting

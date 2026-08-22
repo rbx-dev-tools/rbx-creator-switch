@@ -141,7 +141,9 @@ export class Picker {
     const row = this._rows.find((r) => r.value === value);
     if (row) paint(this.button, row);
     for (const [index, item] of [...this.list.children].entries()) {
-      item.setAttribute('aria-selected', String(this._rows[index].value === value));
+      // Same guard as highlight: the rows and the list can disagree briefly.
+      const row = this._rows[index];
+      if (row) item.setAttribute('aria-selected', String(row.value === value));
     }
     this.open(false);
   }
