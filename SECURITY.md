@@ -5,8 +5,9 @@
 **Use GitHub private security advisories:**
 <https://github.com/rbx-dev-tools/rbx-creator-switch/security/advisories/new>
 
-Not a public issue. Include what you ran, what happened, and why it is a
-security problem rather than a bug.
+Or by email, to <bap.extensions@gmail.com>, if you would rather not use
+GitHub. Not a public issue either way. Include what you ran, what happened,
+and why it is a security problem rather than a bug.
 
 **What to expect.** Solo-maintained: an acknowledgement within a week is the
 realistic commitment, a fix as fast as the severity warrants. Credit in the

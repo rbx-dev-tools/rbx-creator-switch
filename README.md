@@ -268,6 +268,12 @@ Open an issue first, the scope is still moving.
 work against an undocumented API. Security reports go through
 [private advisories](SECURITY.md), not public issues.
 
+## Contact
+
+Bugs and ideas go in [issues](https://github.com/rbx-dev-tools/rbx-creator-switch/issues).
+For anything that should not be public, <bap.extensions@gmail.com>, or a
+[private security advisory](https://github.com/rbx-dev-tools/rbx-creator-switch/security/advisories/new).
+
 ## License
 
 MPL-2.0. See [LICENSE](LICENSE).
