@@ -351,8 +351,9 @@ openButton.addEventListener(
   })
 );
 
-mountThemeToggle(document.getElementById('theme'));
-// The fastest path through this popup is to open it, type a name and press
-// Enter, so the cursor starts where that path begins.
-search.input.focus();
 guard(loadAccounts)();
+// The fastest path through this popup is to open it, type a name and press
+// Enter, so the cursor starts where that path begins. Only once the page is
+// visible: the theme module keeps it hidden for one frame, and a focus
+// given before that is dropped.
+mountThemeToggle(document.getElementById('theme')).then(() => search.input.focus());

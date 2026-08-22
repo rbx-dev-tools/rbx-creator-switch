@@ -28,10 +28,12 @@ export async function mountThemeToggle(container) {
     // one. It is set whatever happened to the read, since a popup that stays
     // blank over a storage error would be worse than one in the wrong theme.
     // Colour transitions are also gated on it, so the first paint is a paint
-    // and not a fade from the browser's default.
-    requestAnimationFrame(() => {
-      document.documentElement.dataset.themeReady = '';
-    });
+    // and not a fade from the browser's default. Awaited, so that a caller
+    // resolving this promise knows the page is visible: focus() on an
+    // element still hidden is silently dropped, and the search field lost
+    // its initial focus that way once.
+    await new Promise(requestAnimationFrame);
+    document.documentElement.dataset.themeReady = '';
   }
   let current = MODES.some(([mode]) => mode === stored) ? stored : 'auto';
   apply(current);
