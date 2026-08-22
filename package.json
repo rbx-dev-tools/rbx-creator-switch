@@ -14,7 +14,9 @@
     "icons": "node scripts/icons.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "screenshots": "node scripts/screenshots.mjs --capture",
+    "demo": "node scripts/screenshots.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

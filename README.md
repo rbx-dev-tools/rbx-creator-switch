@@ -11,6 +11,11 @@ the top right for the account, the menu on the left for the creator, and the
 grid for the experience. Each row here carries its picture, because a list of
 thirty names makes you read where a list of icons lets you recognise.
 
+<p align="center">
+  <img src="docs/screenshots/creator-dark.png" width="300" alt="The creator picker open, dark theme">
+  <img src="docs/screenshots/search-light.png" width="300" alt="A search across every creator, light theme">
+</p>
+
 > **Not affiliated with Roblox, and built on endpoints Roblox does not
 > document.** They can change without notice, and when they do this extension
 > stops working until it is updated. What they are, how they were measured, and
@@ -115,12 +120,19 @@ browser binary, `DEV_PROFILE` the profile location (default
 `~/.rbx-creator-switch/profile`), `CDP_PORT` the port.
 
 ```bash
+npm run demo           # the popup in a plain tab, on stand-in data, at http://127.0.0.1:8765/
+npm run screenshots    # the same, captured to docs/screenshots/*.png
 npm run check          # does this extension still hold together
 npm run icons          # re-render icons/*.png from icons/icon.svg
 npm test               # node --test
 npm run lint           # eslint
 npm run format         # prettier
 ```
+
+`npm run demo` serves the popup with a stand-in for `chrome.*` that answers
+from well-known public experiences, so the layout can be looked at, and the
+README pictures taken, without a Roblox session. Nothing of it ships: the
+extension's own files run unchanged, only the browser they talk to is fake.
 
 `npm run check` walks the manifest, the popup markup, the module imports and
 the `chrome.scripting` calls, and asserts every path they name exists, that no

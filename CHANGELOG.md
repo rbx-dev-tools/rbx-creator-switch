@@ -19,6 +19,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **A creator that fails during a catalogue crawl keeps its entries** from the
   previous crawl instead of dropping out of search until the next manual
   refresh.
+- **Experiences load on a cold cache.** On a first open, or once the cached
+  group list had expired, the experience picker stayed on "pick a creator"
+  until a creator was chosen by hand: the list was asked for before the
+  creators had arrived, and never again. The account's own face also reaches
+  the "My creations" row now instead of only the account picker.
+- **Chevrons drawn in CSS**, larger, pointing right when closed and down when
+  open, instead of a small glyph whose size depended on the system font.
+- **`npm run demo` and `npm run screenshots`**: the popup in a plain tab on
+  stand-in data built from well-known public experiences, for looking at it
+  without a Roblox session and for the README pictures.
 - **Errors that mean "not signed in"** say so, instead of showing a bare 401.
 - `minimum_chrome_version` is declared, and `src/agent.js` is injected into
   the isolated world explicitly rather than by default.
