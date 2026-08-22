@@ -255,6 +255,12 @@ manifest change always needs that.
 `localStorage` on `www.roblox.com`, so a browser profile that has never signed
 in there has no record of the others. Sign in once in that profile.
 
+## Releasing
+
+[docs/publishing.md](docs/publishing.md): the store listing text, the
+permission justifications, and how a tag becomes a GitHub release and a
+Chrome Web Store update.
+
 ## Contributing
 
 Open an issue first, the scope is still moving.

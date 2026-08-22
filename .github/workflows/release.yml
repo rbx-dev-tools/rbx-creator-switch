@@ -68,3 +68,38 @@ jobs:
           files: |
             rbx-creator-switch-*.zip
             SHA256SUMS
+
+      # The Chrome Web Store, through its own API rather than a third-party
+      # action: two curl calls, nothing to pin and nothing to trust. It runs
+      # only once the repository variable CWS_EXTENSION_ID exists, which is
+      # how a release can be cut before the store account is set up. The
+      # three secrets come from a Google Cloud OAuth client owned by the
+      # same account as the store listing.
+      - name: Publish to the Chrome Web Store
+        if: vars.CWS_EXTENSION_ID != ''
+        env:
+          EXTENSION_ID: ${{ vars.CWS_EXTENSION_ID }}
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          token=$(curl -sS -X POST https://oauth2.googleapis.com/token \
+            -d client_id="$CLIENT_ID" -d client_secret="$CLIENT_SECRET" \
+            -d refresh_token="$REFRESH_TOKEN" -d grant_type=refresh_token \
+            | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).access_token")
+          test -n "$token" || { echo 'no access token'; exit 1; }
+
+          zip=$(ls rbx-creator-switch-*.zip)
+          upload=$(curl -sS -X PUT \
+            -H "Authorization: Bearer $token" -H "x-goog-api-version: 2" \
+            -T "$zip" \
+            "https://www.googleapis.com/upload/chromewebstore/v1.1/items/$EXTENSION_ID")
+          echo "$upload"
+          echo "$upload" | grep -q '"uploadState": *"SUCCESS"' || { echo 'upload failed'; exit 1; }
+
+          publish=$(curl -sS -X POST -H "Authorization: Bearer $token" \
+            -H "x-goog-api-version: 2" -H "Content-Length: 0" \
+            "https://www.googleapis.com/chromewebstore/v1.1/items/$EXTENSION_ID/publish")
+          echo "$publish"
+          echo "$publish" | grep -q '"status": *\["OK"\]' || { echo 'publish failed'; exit 1; }
