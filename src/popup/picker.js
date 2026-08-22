@@ -121,6 +121,7 @@ export class Picker {
 
     for (const row of rows) {
       const item = document.createElement('li');
+      item.setAttribute('role', 'option');
       item.append(
         Object.assign(document.createElement('span'), { className: 'avatar' }),
         Object.assign(document.createElement('span'), { className: 'text' })

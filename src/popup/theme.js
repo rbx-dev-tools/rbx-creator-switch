@@ -19,7 +19,20 @@ function apply(mode) {
 
 export async function mountThemeToggle(container) {
   container.textContent = '';
-  const { [STORAGE_KEY]: stored } = await chrome.storage.local.get(STORAGE_KEY);
+  let stored;
+  try {
+    ({ [STORAGE_KEY]: stored } = await chrome.storage.local.get(STORAGE_KEY));
+  } finally {
+    // The stylesheet keeps the page invisible until this attribute lands, so
+    // a stored theme is never seen arriving: the first paint is the right
+    // one. It is set whatever happened to the read, since a popup that stays
+    // blank over a storage error would be worse than one in the wrong theme.
+    // Colour transitions are also gated on it, so the first paint is a paint
+    // and not a fade from the browser's default.
+    requestAnimationFrame(() => {
+      document.documentElement.dataset.themeReady = '';
+    });
+  }
   let current = MODES.some(([mode]) => mode === stored) ? stored : 'auto';
   apply(current);
 

@@ -40,6 +40,25 @@
   color-scheme: dark;
 }
 
+/* Nothing is shown until the stored theme has been read and applied, which
+   takes one storage round trip. Without this the popup paints in the system
+   scheme and then jumps to the chosen one, every single open. */
+:root:not([data-theme-ready]) body {
+  visibility: hidden;
+}
+
+/* Switching theme by hand cross-fades instead of snapping. Only once the
+   first paint is done: before that the same transition would turn the
+   browser's default canvas into a fade on every open. Reduced-motion users
+   get the snap, below. Elements with a transition of their own (.current,
+   .list, .theme button) carry their colours in it instead: a rule here would
+   outrank theirs and take their opening fade with it. */
+:root[data-theme-ready] :is(body, #open, .theme, .field, .label, .sub, #status) {
+  transition-property: background-color, color, border-color, box-shadow;
+  transition-duration: 160ms;
+  transition-timing-function: ease;
+}
+
 body {
   width: 320px;
   margin: 0;
@@ -98,7 +117,8 @@ body {
   cursor: pointer;
   transition:
     border-color 120ms ease,
-    background 120ms ease;
+    background 120ms ease,
+    color 160ms ease;
 }
 .current:disabled {
   background: transparent;
@@ -195,7 +215,10 @@ body {
   transition:
     opacity 130ms ease,
     transform 130ms ease,
-    visibility 130ms;
+    visibility 130ms,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
 }
 .picker.open .list {
   opacity: 1;
@@ -249,6 +272,10 @@ body {
 }
 #open:not(:disabled):hover {
   filter: brightness(1.08);
+}
+#open:not(:disabled):active {
+  transform: translateY(1px);
+  filter: brightness(0.96);
 }
 
 .footer {
@@ -306,10 +333,12 @@ body {
 
 /* Someone who asked their system for less motion means it here too. */
 @media (prefers-reduced-motion: reduce) {
+  :root[data-theme-ready] :is(body, #open, .theme, .field, .label, .sub, #status),
   .chevron,
   .list,
   .current,
   #open,
+  .theme,
   .theme button {
     transition-duration: 1ms;
   }
