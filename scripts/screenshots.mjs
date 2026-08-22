@@ -12,7 +12,9 @@
 // recognises. Without network it falls back to invented names and drawn
 // initials, which is enough to look at the layout.
 //
-//   node scripts/screenshots.mjs --capture   # writes docs/screenshots/*.png and exits
+//   node scripts/screenshots.mjs --capture   # writes docs/screenshots/*.png and exits:
+//                                            # the README views at 2x, and the
+//                                            # 1280x800 Web Store pictures
 //
 //   PORT        listening port (default 8765)
 //   CHROME      path to the browser binary, for --capture
@@ -318,6 +320,7 @@ createServer(async (req, res) => {
     return res.end();
   }
   if (url.pathname === '/__stub.js') return send(200, types['.js'], stub);
+  if (url.pathname === '/__store') return send(200, types['.html'], storePage(url.searchParams));
   if (url.pathname === '/__fixture.json') {
     return send(200, types['.json'], JSON.stringify(fixture));
   }
@@ -360,6 +363,67 @@ createServer(async (req, res) => {
     }
   }
 });
+
+// --- the Web Store listing ------------------------------------------------
+
+// The Chrome Web Store wants 1280x800 pictures. Each is the popup, drawn
+// through an iframe so it is the real thing, on a field in the Hub's colours
+// with one line saying what is being looked at. The data is the fixture, so
+// nothing of anyone's account is in them.
+const STORE = [
+  {
+    name: 'store-1-pickers',
+    query: 'theme=dark&open=creator',
+    title: 'Account, creator, experience.',
+    line: 'Three linked pickers, each row with its picture, in one popup.',
+  },
+  {
+    name: 'store-2-search',
+    query: 'theme=dark&open=search&q=to',
+    title: 'Type a name, press Enter.',
+    line: 'Search every experience of every creator you can see, across accounts.',
+  },
+  {
+    name: 'store-3-light',
+    query: 'theme=light&open=game',
+    title: 'Light, dark, or whatever the system says.',
+    line: 'Opens the experience in the Creator Hub tab you already have.',
+  },
+];
+
+function storePage(params) {
+  const shot = STORE.find((s) => s.name === params.get('shot')) ?? STORE[0];
+  const dark = !shot.query.includes('theme=light');
+  const esc = (t) =>
+    t.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  return `<!doctype html>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 1280px; height: 800px; overflow: hidden; }
+  body {
+    display: flex; align-items: center; gap: 72px; padding: 0 96px; box-sizing: border-box;
+    background: ${dark ? '#121215' : '#f7f7f8'}; color: ${dark ? '#f7f7f8' : '#202227'};
+    font-family: 'Builder Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
+  }
+  .copy { flex: 1; }
+  h1 { margin: 0 0 14px; font-size: 44px; line-height: 1.1; font-weight: 800; letter-spacing: -0.01em; }
+  p { margin: 0; font-size: 20px; line-height: 1.4; font-weight: 500; color: ${dark ? '#bcbec8' : '#6a6f81'}; }
+  .tag { display: inline-block; margin-bottom: 22px; padding: 6px 12px; border-radius: 999px;
+    background: ${dark ? 'rgba(208,217,251,.12)' : 'rgba(27,37,75,.08)'}; font-size: 14px; font-weight: 700; }
+  iframe {
+    flex: none; width: ${WIDTH}px; height: 540px; zoom: 1.3; border: 0; border-radius: 12px;
+    box-shadow: 0 24px 64px rgba(0,0,0,${dark ? '.6' : '.18'}), 0 0 0 1px ${dark ? 'rgba(208,217,251,.12)' : 'rgba(27,37,75,.12)'};
+    background: ${dark ? '#121215' : '#f7f7f8'};
+  }
+</style>
+<div class="copy">
+  <div class="tag">rbx-creator-switch</div>
+  <h1>${esc(shot.title)}</h1>
+  <p>${esc(shot.line)}</p>
+</div>
+<iframe src="/src/popup/popup.html?${shot.query}"></iframe>
+`;
+}
 
 // --- capture ---------------------------------------------------------------
 
@@ -442,6 +506,28 @@ async function capture() {
       });
       await writeFile(join(out, `${shot.name}.png`), Buffer.from(data, 'base64'));
       console.log(`wrote docs/screenshots/${shot.name}.png (${WIDTH}x${height} at 2x)`);
+      page.close();
+      await browser.send('Target.closeTarget', { targetId });
+    }
+    for (const shot of STORE) {
+      const { targetId } = await browser.send('Target.createTarget', { url: 'about:blank' });
+      const { webSocketDebuggerUrl } = (
+        await fetch(`http://127.0.0.1:${cdpPort}/json/list`).then((r) => r.json())
+      ).find((t) => t.id === targetId);
+      const page = await connect(webSocketDebuggerUrl);
+      await page.send('Emulation.setDeviceMetricsOverride', {
+        width: 1280,
+        height: 800,
+        deviceScaleFactor: 1,
+        mobile: false,
+      });
+      await page.send('Page.navigate', {
+        url: `http://127.0.0.1:${port}/__store?shot=${shot.name}`,
+      });
+      await new Promise((r) => setTimeout(r, 7000));
+      const { data } = await page.send('Page.captureScreenshot', { format: 'png' });
+      await writeFile(join(out, `${shot.name}.png`), Buffer.from(data, 'base64'));
+      console.log(`wrote docs/screenshots/${shot.name}.png (1280x800)`);
       page.close();
       await browser.send('Target.closeTarget', { targetId });
     }

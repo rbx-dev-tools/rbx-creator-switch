@@ -121,7 +121,7 @@ browser binary, `DEV_PROFILE` the profile location (default
 
 ```bash
 npm run demo           # the popup in a plain tab, on stand-in data, at http://127.0.0.1:8765/
-npm run screenshots    # the same, captured to docs/screenshots/*.png
+npm run screenshots    # the same, captured to docs/screenshots/: README views and 1280x800 store pictures
 npm run check          # does this extension still hold together
 npm run icons          # re-render icons/*.png from icons/icon.svg
 npm test               # node --test
