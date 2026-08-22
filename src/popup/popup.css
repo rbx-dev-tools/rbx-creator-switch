@@ -302,13 +302,37 @@ body {
 /* Three states in the width of a word, because the theme is a preference, not
    a feature worth a row of its own. */
 .theme {
+  position: relative;
   display: flex;
   flex: none;
   padding: 2px;
   border-radius: 999px;
   background: var(--hover);
 }
+/* The highlight under the chosen mode: one thumb that slides from button to
+   button, placed by theme.js since the three labels differ in width. Until
+   the first paint is done it jumps, so a stored choice does not slide in
+   from "Auto" on every open. */
+.theme::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 0;
+  width: var(--thumb-w, 0px);
+  transform: translateX(var(--thumb-x, 0px));
+  border-radius: 999px;
+  background: var(--raised);
+  box-shadow: 0 1px 2px light-dark(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.35));
+}
+:root[data-theme-ready] .theme::before {
+  transition:
+    transform 180ms cubic-bezier(0.2, 0, 0, 1),
+    width 180ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 160ms ease;
+}
 .theme button {
+  position: relative;
   padding: 3px 8px;
   border: 0;
   border-radius: 999px;
@@ -318,22 +342,17 @@ body {
   font-size: 10.5px;
   font-weight: 500;
   cursor: pointer;
-  transition:
-    background 120ms ease,
-    color 120ms ease;
+  transition: color 160ms ease;
 }
-.theme button:hover {
-  color: var(--fg);
-}
+.theme button:hover,
 .theme button[aria-pressed='true'] {
-  background: var(--raised);
   color: var(--fg);
-  box-shadow: 0 1px 2px light-dark(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.35));
 }
 
 /* Someone who asked their system for less motion means it here too. */
 @media (prefers-reduced-motion: reduce) {
   :root[data-theme-ready] :is(body, #open, .theme, .field, .label, .sub, #status),
+  :root[data-theme-ready] .theme::before,
   .chevron,
   .list,
   .current,

@@ -50,7 +50,15 @@ export async function mountThemeToggle(container) {
     current = mode;
     apply(mode);
     for (const [candidate, button] of buttons) {
-      button.setAttribute('aria-pressed', String(candidate === mode));
+      const on = candidate === mode;
+      button.setAttribute('aria-pressed', String(on));
+      // The highlight is one element that slides under the chosen button
+      // rather than a background each button shows or hides. The buttons are
+      // not the same width, so the stylesheet is told where to put it.
+      if (on) {
+        container.style.setProperty('--thumb-x', `${button.offsetLeft}px`);
+        container.style.setProperty('--thumb-w', `${button.offsetWidth}px`);
+      }
     }
     chrome.storage.local.set({ [STORAGE_KEY]: mode });
   }
