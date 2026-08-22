@@ -23,10 +23,17 @@ mode, choose "Load unpacked" and pick this folder. To work on the code, use
 
 ## Keyboard
 
-`Alt+Shift+R` opens it, and the cursor starts in the search field, so the whole
-path is: shortcut, type a name, Enter. Chrome ignores a suggested shortcut
-another extension already claimed, and lets you set your own at
-`chrome://extensions/shortcuts`.
+`Ctrl+Shift+Y` opens it, and the cursor starts in the search field, so the
+whole path is: shortcut, type a name, Enter.
+
+A suggested shortcut is only that. Chrome assigns it when the extension is
+first installed, silently drops it if another extension already holds the
+combination, and refuses some combinations outright: `Alt+Shift+R` was the
+first choice here and Chrome assigned nothing at all, even on a clean profile,
+which is measurable through `chrome.commands.getAll()`. If the shortcut does
+nothing, `chrome://extensions/shortcuts` is where to see what it actually got
+and to set your own. An extension that was already installed before this key
+existed keeps whatever it had, so it has to be set there by hand.
 
 Inside the popup: arrows move through a list, Enter takes the highlighted row,
 Escape closes it.
@@ -46,8 +53,11 @@ tabs on two more, `www.roblox.com` and `create.roblox.com`. That is the
 complete list, and `grep -rn "https://" src/` prints it on one screen. No
 telemetry, no analytics, no remote configuration, no remote code.
 
-**It asks for two permissions**, `scripting` and `storage`, plus host access to
-`https://*.roblox.com/*`. There is deliberately no `tabs` permission: with it,
+**It declares two permissions**, `scripting` and `storage`, plus host access to
+`https://*.roblox.com/*`. Nothing prompts you: a manifest permission is granted
+when the extension is installed, and loading unpacked shows no dialog at all.
+That is exactly why the list is worth reading rather than waiting to be asked
+about. There is deliberately no `tabs` permission: with it,
 an extension can read the URL and title of every open tab, and it turned out to
 be unnecessary, since host access already allows finding a roblox.com tab and
 reading its URL. `npm run check` fails the build on a declared permission

@@ -24,11 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   at instead of stacking a second one beside it. A tab on any other site is
   left alone, which includes a tab whose URL cannot be read: without host
   permission there is no `url` to inspect, and that is the correct answer.
-- **A keyboard path through the whole thing**: `Alt+Shift+R` opens the popup
+- **A keyboard path through the whole thing**: `Ctrl+Shift+Y` opens the popup
   with the cursor already in the search field, arrows move through any list,
-  Enter takes the highlighted row and Escape closes it. Chrome ignores a
-  suggested shortcut another extension has claimed, and `chrome://extensions/shortcuts`
-  is where to set your own.
+  Enter takes the highlighted row and Escape closes it. A suggested shortcut is
+  only a suggestion: Chrome drops it if another extension holds the
+  combination, and refuses some outright, `Alt+Shift+R` among them.
+  `chrome://extensions/shortcuts` is where to see what it got and to set your
+  own.
 - **An icon**, two arrows swapping places on a blue badge, drawn for 16px
   first since that is where it lives. `icons/icon.svg` is the source and
   `npm run icons` renders the PNG sizes Chrome asks for, so the pixels never

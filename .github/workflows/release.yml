@@ -35,11 +35,29 @@ jobs:
 
       # Only what the browser loads. The tooling, the tests and the docs are
       # read on GitHub, not installed.
+      #
+      # Zipped from inside the folder, so manifest.json sits at the root of the
+      # archive. A zip with everything one directory down is rejected by the
+      # Chrome Web Store and needs an extra click to load unpacked.
       - name: Build the zip
         run: |
-          mkdir -p dist/rbx-creator-switch
-          cp -r manifest.json src LICENSE dist/rbx-creator-switch/
-          cd dist && zip -r "../rbx-creator-switch-${GITHUB_REF_NAME}.zip" rbx-creator-switch
+          mkdir -p dist
+          cp -r manifest.json src icons LICENSE dist/
+          cd dist && zip -qr "../rbx-creator-switch-${GITHUB_REF_NAME}.zip" .
+
+      - name: Check the archive is loadable
+        run: |
+          unzip -l "rbx-creator-switch-${GITHUB_REF_NAME}.zip"
+          unzip -l "rbx-creator-switch-${GITHUB_REF_NAME}.zip" | grep -qE ' manifest.json$' || {
+            echo 'manifest.json is not at the root of the archive'
+            exit 1
+          }
+          for size in 16 32 48 128; do
+            unzip -l "rbx-creator-switch-${GITHUB_REF_NAME}.zip" | grep -qE " icons/icon-$size.png$" || {
+              echo "icons/icon-$size.png is missing from the archive"
+              exit 1
+            }
+          done
 
       - name: Generate SHA256 checksum
         run: sha256sum rbx-creator-switch-*.zip > SHA256SUMS
