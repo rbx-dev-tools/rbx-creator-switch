@@ -65,7 +65,7 @@ test('a 403 carrying a token is retried once with that token', async () => {
 
 test('a 401 is reported as a missing session, not as a number', async () => {
   respond = () => json({}, { status: 401 });
-  await assert.rejects(agent('listAccounts'), /not signed in on roblox\.com/);
+  await assert.rejects(agent('listAccounts'), /signed out/);
 });
 
 // --- accounts and the blob ----------------------------------------------
@@ -160,6 +160,29 @@ test('listGames walks every page until a short one', async () => {
   assert.equal(first.get('CreatorType'), 'Group');
   assert.equal(first.get('CreatorTargetId'), '9');
   assert.equal(first.get('PageSize'), '50');
+});
+
+test('listGames stops when totalResults says the list is complete', async () => {
+  respond = () =>
+    json({ data: Array.from({ length: 50 }, (_, i) => ({ id: i })), totalResults: 50 });
+  const games = await agent('listGames', { creatorType: 'User', creatorTargetId: 1 });
+  assert.equal(games.length, 50);
+  assert.equal(requests.length, 1, 'a full page that is also the whole list asks for no more');
+});
+
+test('a refused later page keeps the pages before it', async () => {
+  respond = ({ url }) => {
+    const index = Number(new URL(url).searchParams.get('PageIndex'));
+    if (index > 0) return json({}, { status: 401 });
+    return json({ data: Array.from({ length: 50 }, (_, i) => ({ id: i })) });
+  };
+  const games = await agent('listGames', { creatorType: 'Group', creatorTargetId: 1 });
+  assert.equal(games.length, 50, 'the first page is not lost to the second');
+});
+
+test('a refused first page is still an error', async () => {
+  respond = () => json({}, { status: 401 });
+  await assert.rejects(agent('listGames', { creatorType: 'Group', creatorTargetId: 1 }), /401/);
 });
 
 test('listGames stops on a hard ceiling if the endpoint never runs dry', async () => {

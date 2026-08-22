@@ -41,7 +41,7 @@
   // says nothing; what it means is that the session is gone.
   function failure(method, path, status) {
     if (status === 401 || status === 403) {
-      return new Error(`not signed in on roblox.com (${method} ${path} -> ${status})`);
+      return new Error(`${method} ${path} -> ${status}: signed out, or the request was refused`);
     }
     return new Error(`${method} ${path} -> ${status}`);
   }
@@ -159,26 +159,40 @@
     // The endpoint pages, and the dashboard walks the pages by incrementing
     // PageIndex. A creator with more than one page of experiences would
     // otherwise lose the rest silently, from the picker and from the search
-    // catalogue alike. The walk stops on a short page, and on a hard ceiling
-    // in case the endpoint ever answers full pages forever.
+    // catalogue alike.
+    //
+    // The walk stops when `totalResults` says everything is in, or on a page
+    // shorter than asked, with a hard ceiling in case the endpoint ever
+    // answers full pages forever. Only the first page is allowed to fail the
+    // call: this endpoint answers 401 to a request it dislikes, a page past
+    // the end included, and a refused second page must not throw away the
+    // first one.
     async listGames({ creatorType, creatorTargetId, isArchived = false }) {
       const PAGE = 50;
       const MAX_PAGES = 40;
       const all = [];
       for (let pageIndex = 0; pageIndex < MAX_PAGES; pageIndex += 1) {
-        const { data = [] } = await get('/universes/v1/search', {
-          CreatorType: creatorType,
-          CreatorTargetId: String(creatorTargetId),
-          Surface: 'CreatorHubCreations',
-          PageSize: PAGE,
-          PageIndex: pageIndex,
-          IsArchived: isArchived,
-          SortParam: 'LastUpdated',
-          SortOrder: 'Desc',
-          NeedsAssetOptions: true,
-        });
+        let page;
+        try {
+          page = await get('/universes/v1/search', {
+            CreatorType: creatorType,
+            CreatorTargetId: String(creatorTargetId),
+            Surface: 'CreatorHubCreations',
+            PageSize: PAGE,
+            PageIndex: pageIndex,
+            IsArchived: isArchived,
+            SortParam: 'LastUpdated',
+            SortOrder: 'Desc',
+            NeedsAssetOptions: true,
+          });
+        } catch (err) {
+          if (pageIndex === 0) throw err;
+          break;
+        }
+        const data = page.data || [];
         all.push(...data);
         if (data.length < PAGE) break;
+        if (Number.isInteger(page.totalResults) && all.length >= page.totalResults) break;
       }
       // SortParam above asks for most recently updated first, which is the
       // useful order for a list of things you are working on, and unlike the
