@@ -1,0 +1,52 @@
+name: Something stopped working
+description: The popup shows an error, an empty list, or the wrong thing. Most often Roblox changed an endpoint.
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This extension drives endpoints Roblox does not document. When it breaks, the first question is whether Roblox changed something, and the answers below are what settle that quickly.
+  - type: input
+    id: status
+    attributes:
+      label: What the status line says
+      description: The grey or red text at the bottom of the popup, copied exactly.
+      placeholder: 'POST /account-switcher/v1/getLoggedInUsersMetadata -> 500'
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What you did
+      description: Which picker, which row, what you expected instead.
+    validations:
+      required: true
+  - type: input
+    id: extension
+    attributes:
+      label: Extension version
+      description: From `chrome://extensions`, or the release you downloaded.
+      placeholder: '0.1.0'
+    validations:
+      required: true
+  - type: input
+    id: chrome
+    attributes:
+      label: Browser and version
+      placeholder: 'Chrome 151.0.7367.61'
+    validations:
+      required: true
+  - type: checkboxes
+    id: context
+    attributes:
+      label: Context
+      options:
+        - label: I am signed in on www.roblox.com in this profile
+        - label: Site access for the extension is "On all sites" in chrome://extensions
+        - label: It worked before, on the same version of the extension
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors, if any
+      description: Right-click the popup, Inspect, Console tab. Paste what is red. Strip anything that looks like a token or a blob.
+      render: text

@@ -1,0 +1,24 @@
+name: Idea
+description: Something the popup could do, or do better.
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read CONTRIBUTING.md first: the shape of this extension is still being decided, and an issue before code is how scope gets agreed.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is slow or awkward today
+      description: The situation, not the solution. What you were trying to reach and how many steps it took.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would change
+  - type: textarea
+    id: endpoint
+    attributes:
+      label: If it needs a Roblox endpoint the extension does not call yet
+      description: Which one, and how you measured it. See "Working against a private API" in CONTRIBUTING.md.

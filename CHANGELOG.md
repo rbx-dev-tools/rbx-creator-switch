@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Every page of a creator's experiences.** `universes/v1/search` pages by
+  fifty and the popup used to read only the first page, so a creator with more
+  experiences than that silently lost the rest, from the picker and from the
+  search catalogue alike. The walk now continues until a short page.
+- **The roblox.com tab the popup opens for itself is closed** when the popup
+  closes, unless it was brought to the front in between. Before, every use
+  without a roblox.com tab open left one behind.
+- **A creator that fails during a catalogue crawl keeps its entries** from the
+  previous crawl instead of dropping out of search until the next manual
+  refresh.
+- **Errors that mean "not signed in"** say so, instead of showing a bare 401.
+- `minimum_chrome_version` is declared, and `src/agent.js` is injected into
+  the isolated world explicitly rather than by default.
+- `npm run check` now also verifies that every host named in `src/` is allowed
+  by `host_permissions` and listed in both the README and SECURITY.md, after
+  those two lists were found to disagree with the code.
+- Tests for the agent (CSRF retry, paging, the blob rule, image filtering),
+  the tab choice and the catalogue crawl.
+- Issue templates and a code of conduct.
+
 - **The popup**: an account, a creator and an experience in three linked
   pickers, each row carrying its picture. The Creator Hub spreads that choice
   over three places on the page, and a list of bare names makes you read where

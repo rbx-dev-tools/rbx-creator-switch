@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/rbx-dev-tools/rbx-creator-switch/security/advisories/new
+    about: Anything touching the session or the account switcher blob goes here, privately, not in an issue.
