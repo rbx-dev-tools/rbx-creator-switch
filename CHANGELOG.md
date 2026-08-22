@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-08-22
+
 ### Added
 
 - **Every page of a creator's experiences.** `universes/v1/search` pages by
@@ -99,3 +101,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Calling `getLoggedInUsersMetadata` without it still answers `200`, describing
   the single account the cookies name, and storing that shorter blob would have
   dropped every other signed-in account from the switcher.
+
+[Unreleased]: https://github.com/rbx-dev-tools/rbx-creator-switch/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/rbx-dev-tools/rbx-creator-switch/releases/tag/v0.1.0
