@@ -8,30 +8,38 @@
 :root {
   color-scheme: light dark;
 
-  /* Surfaces, from the page up to the floating list. */
-  --bg: light-dark(#fbfbfc, #17181c);
-  --raised: light-dark(#ffffff, #23252b);
-  --line: light-dark(#e2e4e9, #33363e);
-  --hover: light-dark(#f1f2f5, #2b2e35);
+  /* The values are the Creator Hub's own. Roblox's design system, Foundation,
+     publishes them as CSS custom properties on create.roblox.com, and the
+     names in the comments are theirs, so the popup reads as part of the Hub
+     rather than as a page next to it. Read on 2026-08-22 from the public
+     stylesheet; if the Hub changes skin, this is the block to redo. */
 
-  /* Text. The muted tone is held above 4.5:1 on its own background in both
-     schemes, because a username is information, not decoration. */
-  --fg: light-dark(#16181d, #eceef2);
-  --fg-muted: light-dark(#5f6672, #a2a8b4);
-  /* Between the two. A field label is not body text and not a whisper: it has
-     to be findable at a glance without competing with the row it names. */
-  --fg-label: light-dark(#3c424e, #c5cad4);
+  /* Surfaces: surface-100 for the page, surface-0 / white for what sits on
+     it, and "shift" (a tinted alpha) for hover, which is how the Hub lifts a
+     row without a colour of its own per theme. */
+  --bg: light-dark(#f7f7f8, #121215);
+  --raised: light-dark(#ffffff, #191a1f);
+  --line: light-dark(rgb(27 37 75 / 0.12), rgb(208 217 251 / 0.12));
+  --hover: light-dark(rgb(27 37 75 / 0.08), rgb(208 217 251 / 0.08));
 
-  /* One accent, used for the selected row, the focus ring and the one button
-     that commits. Anything else competing for attention would flatten it. */
-  --accent: light-dark(#2f66e0, #6f9dff);
-  --accent-fg: light-dark(#ffffff, #12141a);
-  --accent-soft: light-dark(#eaf0fe, #22304d);
+  /* Text: content-emphasis, content-default, content-muted. */
+  --fg: light-dark(#202227, #f7f7f8);
+  --fg-label: light-dark(#494d5a, #d5d7dd);
+  --fg-muted: light-dark(#6a6f81, #bcbec8);
 
-  --danger: light-dark(#c0362c, #ff8f85);
+  /* One accent, the Hub's system-emphasis blue, for the selected row, the
+     focus ring and the one button that commits. */
+  --accent: light-dark(#335fff, #335fff);
+  --accent-fg: #ffffff;
+  --accent-soft: light-dark(rgb(51 95 255 / 0.12), rgb(51 95 255 / 0.22));
 
+  /* system-alert, lifted two steps in the dark for contrast on #121215. */
+  --danger: light-dark(#df281f, #eb7973);
+
+  /* radius-medium for controls, radius-large for the floating list. */
   --radius: 8px;
-  --shadow: light-dark(0 10px 28px rgb(16 20 32 / 0.14), 0 12px 32px rgb(0 0 0 / 0.55));
+  --radius-large: 16px;
+  --shadow: light-dark(0 8px 24px rgb(27 37 75 / 0.14), 0 12px 32px rgb(0 0 0 / 0.6));
 }
 :root[data-theme='light'] {
   color-scheme: light;
@@ -68,7 +76,12 @@ body {
   /* system-ui resolves to the interface face the OS actually uses, which is
      what makes a popup look like part of the browser rather than a web page
      inside it. The rest is fallback for the platforms where it does not. */
+  /* Builder Sans is the Hub's face. It is not bundled (an extension should
+     not carry a font it can only guess the licence of), so it is used when
+     the machine has it and the system face stands in otherwise, which on
+     every platform is what the browser chrome around the popup is set in. */
   font-family:
+    'Builder Sans',
     system-ui,
     -apple-system,
     'Segoe UI',
@@ -156,7 +169,32 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 500;
+  font-weight: 600;
+}
+
+/* The Hub's pill: a tinted capsule, 600 weight, a lock when it matters. */
+.badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--hover);
+  color: var(--fg-label);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+.badge.private::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: currentColor;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7h1zm2 0h4V5a2 2 0 0 0-4 0v2z'/></svg>")
+    center / contain no-repeat;
 }
 .sub {
   margin-top: 1px;
@@ -203,7 +241,7 @@ body {
   overscroll-behavior: contain;
   list-style: none;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-large);
   background: var(--raised);
   box-shadow: var(--shadow);
   scrollbar-width: thin;
@@ -458,12 +496,16 @@ body {
    so before it is picked rather than after. */
 .switches {
   flex: none;
-  padding: 2px 6px;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
   border-radius: 999px;
   background: var(--accent-soft);
-  color: var(--accent);
-  font-size: 10px;
+  color: light-dark(#1f47d6, #8fb4ff);
+  font-size: 11px;
   font-weight: 600;
+  line-height: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {

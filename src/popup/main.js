@@ -182,12 +182,22 @@ async function onCreatorPicked() {
   await loadGames();
 }
 
+// The Hub's own vocabulary and marks: a lock for a private experience, and
+// the plain word for the rest. Unknown values pass through as they are.
+const PRIVACY = {
+  Private: { text: 'Private', kind: 'private' },
+  Public: { text: 'Public', kind: 'public' },
+  FriendsOnly: { text: 'Friends', kind: 'private' },
+};
+const privacyBadge = (privacyType) =>
+  PRIVACY[privacyType] ?? (privacyType ? { text: privacyType } : null);
+
 function renderGames(list) {
   game.fill(
     list.map((g) => ({
       value: g.id,
       label: g.name,
-      sub: g.privacyType,
+      badge: privacyBadge(g.privacyType),
       imageUrl: g.imageUrl,
     })),
     'no experience'

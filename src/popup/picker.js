@@ -1,7 +1,7 @@
 // One dropdown: a button showing the current row, a list of rows to choose
 // from. Knows about rows and clicks, nothing about Roblox.
 //
-// A row is { value, label, sub, imageUrl }. Native <select> cannot show an
+// A row is { value, label, sub, imageUrl, badge }. Native <select> cannot show an
 // image, which is the whole reason this exists.
 
 // The image is a nicety, so the frame keeps its box whether or not one arrives.
@@ -18,6 +18,15 @@ function paint(target, row) {
     sub.className = 'sub';
     sub.textContent = row.sub;
     text.append(sub);
+  }
+  // A pill after the text, the way the Creator Hub tags an experience
+  // "Private": { text, kind }, where kind picks the icon and tone.
+  target.querySelector('.badge')?.remove();
+  if (row.badge) {
+    const badge = document.createElement('span');
+    badge.className = `badge ${row.badge.kind ?? ''}`.trim();
+    badge.textContent = row.badge.text;
+    target.querySelector('.text').after(badge);
   }
 }
 
