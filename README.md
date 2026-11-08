@@ -28,9 +28,9 @@ thirty names makes you read where a list of icons lets you recognise.
 
 **From the Chrome Web Store**, which keeps it updated:
 <https://chromewebstore.google.com/detail/bepiniefoledgbkjhfiahjmaiceafmak>.
-The listing is unlisted: the link installs, the store's search does not find
-it. Works in Chrome, Edge, Brave and the other Chromium browsers that accept
-the Chrome store. Chrome 95 or later; the manifest refuses older ones.
+The listing is public, so the store's search finds it too. Works in Chrome,
+Edge, Brave and the other Chromium browsers that accept the Chrome store.
+Chrome 95 or later; the manifest refuses older ones.
 
 **Unpacked**, if you would rather read what you run: download the zip from
 the [latest release](https://github.com/rbx-dev-tools/rbx-creator-switch/releases/latest)
