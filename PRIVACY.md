@@ -7,16 +7,26 @@ a creator (you or a group) and an experience in one popup. This page says what
 it reads, what it stores, and where anything is sent. The short version: it
 collects nothing, and the only server it talks to is Roblox.
 
-## What the extension collects
+## What the author collects
 
 Nothing. There is no server operated by the author, no telemetry, no
 analytics, no crash reporting and no remote configuration. The author never
 receives any data from the extension, because the extension has nowhere to
 send it.
 
-## What the extension reads
+## What the extension handles on your device
 
-While the popup is open, it reads from a roblox.com tab you are signed in on:
+The extension does handle some of your Roblox data, on your device, to do its
+job. By Chrome Web Store categories, that is:
+
+- **Personally identifiable information**: your Roblox user id, username and
+  display name.
+- **Authentication information**: the account switcher record described
+  below, which says which accounts are signed in. It contains no password.
+- **Website content**: the names and pictures of your groups and experiences.
+
+None of it is collected by the author, sold or shared. It is read as follows,
+while the popup is open, from a roblox.com tab you are signed in on:
 
 - **Your signed-in accounts**: user id, username and display name, from the
   account switcher endpoint, to list the accounts you can switch between.
